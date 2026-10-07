@@ -7,11 +7,11 @@ from pathlib import Path
 from ebooklib import epub
 
 DATA = Path(__file__).parent / "data"
-CHAPTER_DIR = DATA / "chapters"
-OUTPUT = Path(__file__).parent / "凡人修仙传.epub"
+CHAPTER_DIR = DATA / "chapters_fixed"
+OUTPUT = Path(__file__).parent / "凡人修仙传·人界篇.epub"
 
-book_info = json.loads((DATA / "book.json").read_text())
-chapter_names = json.loads((DATA / "chapters.json").read_text())
+book_info = json.loads((DATA / "book.json").read_text(encoding="utf-8"))
+chapter_names = json.loads((DATA / "chapters.json").read_text(encoding="utf-8"))
 
 
 def clean_txt(raw: str) -> list[str]:
@@ -25,7 +25,9 @@ def clean_txt(raw: str) -> list[str]:
     return cleaned
 
 
-def build_epub(start: int = 1, end: int = 2456, chapter_dir=None, output=None):
+def build_epub(start: int = 1, end: int = len(chapter_names), chapter_dir=None, output=None):
+    if not 1 <= start <= end <= len(chapter_names):
+        raise ValueError(f"章节范围必须满足 1 <= start <= end <= {len(chapter_names)}")
     chapter_dir = Path(chapter_dir) if chapter_dir else CHAPTER_DIR
     output = Path(output) if output else OUTPUT
     book = epub.EpubBook()
@@ -47,10 +49,7 @@ def build_epub(start: int = 1, end: int = 2456, chapter_dir=None, output=None):
     chapters = []
     for cid in range(start, end + 1):
         f = chapter_dir / f"{cid:04d}.json"
-        if not f.exists():
-            print(f"  SKIP {cid:04d} (not found)")
-            continue
-        data = json.loads(f.read_text())
+        data = json.loads(f.read_text(encoding="utf-8"))
         name = data.get("chaptername") or chapter_names[cid - 1]
         paras = clean_txt(data.get("txt", ""))
 
@@ -84,7 +83,7 @@ def build_epub(start: int = 1, end: int = 2456, chapter_dir=None, output=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--start", type=int, default=1)
-    parser.add_argument("--end", type=int, default=2456)
+    parser.add_argument("--end", type=int, default=len(chapter_names))
     parser.add_argument("--chapter-dir", default=None)
     parser.add_argument("--output", default=None)
     args = parser.parse_args()

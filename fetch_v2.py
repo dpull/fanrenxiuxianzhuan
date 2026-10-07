@@ -13,11 +13,13 @@ REF = json.loads((DATA / "txt_ref.json").read_text(encoding="utf-8"))
 
 POLLUTION_MARKERS = ["大学阿拉伯语", "我今年２２岁"]
 
-book_info = json.loads((DATA / "book.json").read_text())
-chapter_names = json.loads((DATA / "chapters.json").read_text())
+book_info = json.loads((DATA / "book.json").read_text(encoding="utf-8"))
+chapter_names = json.loads((DATA / "chapters.json").read_text(encoding="utf-8"))
 
 START = int(sys.argv[1]) if len(sys.argv) > 1 else 1
-END = int(sys.argv[2]) if len(sys.argv) > 2 else 2456
+END = int(sys.argv[2]) if len(sys.argv) > 2 else len(chapter_names)
+if not 1 <= START <= END <= len(chapter_names):
+    raise ValueError(f"章节范围必须满足 1 <= start <= end <= {len(chapter_names)}")
 
 DELAY = 0.8
 ERROR_DELAY = 2.0

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """typo_schedule.py - 批次调度与状态管理
 
-批次清单：2456 章按 20 章/批分成 123 批
+批次清单：按当前章节索引，每 20 章分成一批
 状态表：data/typo_progress.json（pending/running/done/failed）
 支持断点续跑与对账。
 """
@@ -16,7 +16,7 @@ CANDIDATE_DIR = DATA / "typo_candidates"
 PROGRESS_FILE = DATA / "typo_progress.json"
 
 BATCH_SIZE = 20
-TOTAL = 2456
+TOTAL = len(json.loads((DATA / "chapters.json").read_text(encoding="utf-8")))
 
 
 def batch_list():

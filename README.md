@@ -1,51 +1,42 @@
-# 凡人修仙传 精校版
+# 凡人修仙传·人界篇
 
-**作者：忘语** · 共 2456 章 · AI 全量错别字校正版
+**作者：忘语** · 1265 个章节文件 · 人界正篇
 
-基于网络来源整理，2026-08 对全部 2456 章做了全量错别字校正（同音错字、漏字、不通顺处），共修正 25,260 处，校验问题 0 条，原文件全程未被修改（哈希快照验证）。
+章节索引和默认构建范围仅包含从《山边小村》至《进入节点》的人界正篇，即文件编号 `0001`—`1265`；不收录从《陌生之地》开始的后续篇章、外传和完本感言。
+
+范围外章节 JSON 已全部删除。`data/chapters/` 与 `data/chapters_fixed/` 均仅保留编号 `0001`—`1265`，与章节索引一致。
+
+两套正文均清理作者求票、请假、更新说明、荐书和站点广告；保留剧情及其原有顺序，不按主观判断删除支线。原标题存在重号、错号，故保留文件编号作为唯一顺序依据，不按标题中的章号重排。
+
+单章的 `cs`、`md5` 等字段保留为源站历史元数据，不代表本版本的章节总数或当前正文校验和；本版本范围以 `data/chapters.json` 为准。
 
 ## 目录结构
 
 | 路径 | 内容 |
 |------|------|
-| `data/chapters/` | 原始章节 JSON（2456 章，每章含标题与正文 `txt` 字段） |
-| `data/chapters_fixed/` | 校正后的章节 JSON（仅替换 `txt` 字段，其余字段与原版一致） |
-| `data/typo_report_final.md` | **v1 与 v2 的完整差异报告**（修改统计、高频错字模式、逐章 before→after 清单） |
-| `data/chapters.json` `book.json` `txt_ref.json` | 站点元数据 / 书名信息 / 参考文本 |
-| `scripts/` | 校正管线脚本（候选 → 确认 → 修改 → 校验 → 报告） |
-| `build_epub.py` | 从章节 JSON 生成 EPUB（支持 `--chapter-dir` `--output` 参数） |
-
-## 文件
-
-| 格式 | 版本 | 说明 |
-|------|------|------|
-| [凡人修仙传.epub](凡人修仙传.epub) | v1 | 原始版本（12.4 MB） |
-| [凡人修仙传v2.epub](凡人修仙传v2.epub) | v2 | 错别字校正版（12.4 MB） |
-
-txt / mobi / pdf 可由脚本本地生成（见下）。
-
-## v2 差异报告
-
-v1 与 v2 的完整改动清单见 [data/typo_report_final.md](data/typo_report_final.md)：统计摘要 → 高频错字模式 → 逐章 before→after 清单。
+| `data/chapters/` | 原始版本的人界正文，1265章，已清理非正文内容 |
+| `data/chapters_fixed/` | 精校版本的人界正文，1265章，已清理非正文内容 |
+| `data/chapters.json` | 本版本章节索引，按文件编号排序 |
+| `data/book.json` | 人界篇书名、简介与截止章节 |
+| `data/txt_ref.json` | 仅保留人界部分的历史参考文本片段 |
+| `data/typo_report_final.md` | 仅保留人界部分的历史校正记录，不代表当前差异或校验结果 |
+| `scripts/` | TXT构建及历史校正工具 |
+| `build_epub.py` | EPUB构建工具，默认读取精校正文 |
 
 ## 本地生成成品
 
-```bash
-python3 scripts/build_txt.py --chapters-dir data/chapters_fixed --output 凡人修仙传v2.txt
-python3 build_epub.py --chapter-dir data/chapters_fixed --output 凡人修仙传v2.epub
-ebook-convert 凡人修仙传v2.epub 凡人修仙传v2.mobi
-ebook-convert 凡人修仙传v2.epub 凡人修仙传v2.pdf --paper-size a4 --margin-top 30 --margin-bottom 30 --margin-left 40 --margin-right 40 --base-font-size 11
-```
+旧全书EPUB已移除，避免保留范围外正文。构建默认输出人界篇，章节范围以当前索引为准；范围越界或文件缺失时会报错。
 
-（`ebook-convert` 来自 [Calibre](https://calibre-ebook.com/)。）
-
-## 重新执行校正管线
+需要 Python 3.10 或更高版本。TXT构建仅依赖标准库；EPUB构建还需安装 `ebooklib`。
 
 ```bash
-python3 scripts/typo_schedule.py       # 批次调度/对账
-python3 scripts/typo_merge.py          # 候选汇总 → data/typo_report.md
-python3 scripts/typo_approve.py        # 生成确认清单 data/typo_approved.jsonl
-python3 scripts/typo_apply.py          # 按清单修改 → chapters_fixed + chapter_edits
-python3 scripts/typo_batch_replace.py  # 高频模式全文替换（带边界）
-python3 scripts/typo_check.py          # 一致性校验 → data/typo_report_final.md
+python -m pip install ebooklib
+python scripts/build_txt.py
+python build_epub.py
 ```
+
+默认输出 `凡人修仙传·人界篇.txt` 和 `凡人修仙传·人界篇.epub`。可通过 `--start`、`--end` 指定人界范围内的片段，通过 `--output` 指定输出路径。
+
+## 历史工具
+
+保留抓取与校正工具供维护使用，但它们不是本次裁剪后的重新生成流程。抓取可能重新带入作者话和广告；旧校正清单、快照和逐章硬编码补丁未随本次正文清理重建，不应直接重跑。
